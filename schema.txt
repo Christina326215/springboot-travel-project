@@ -1,0 +1,79 @@
+-- Travel Project
+CREATE DATABASE travel;
+
+CREATE TABLE destinations (
+                              id INT AUTO_INCREMENT PRIMARY KEY,
+                              name VARCHAR(255) NOT NULL,
+                              description TEXT,
+                              image_url VARCHAR(255)
+);
+
+INSERT INTO destinations (name, description, image_url) VALUES
+                                                            ('Taiwan', 'The city of light and love.', 'https://media.istockphoto.com/id/1807090505/photo/city-of-taipei-at-night-taiwan.jpg?s=2048x2048&w=is&k=20&c=R4VgJlJW-QkbMW-5KOkvobDFrzagfsslih3KSY9Pxo4='),
+                                                            ('Tokyo', 'A vibrant city blending tradition and modernity.', 'https://media.istockphoto.com/id/1283529752/photo/cherry-blossom-and-building-at-asakusa-sumida-park.jpg?s=2048x2048&w=is&k=20&c=uX4MCg7s7qrkxXXEO9fXebQyY0JQsLpX_hnwP7Vxb5k='),
+                                                            ('New York', 'The city that never sleeps.', 'https://media.istockphoto.com/id/1454217037/photo/statue-of-liberty-and-new-york-city-skyline-with-manhattan-financial-district-world-trade.jpg?s=2048x2048&w=is&k=20&c=vU6ueTc78MEA9XrEnhYoWsKi6pAvtf6bGdVzPn4T7jQ='),
+                                                            ('Seoul', 'A hub of culture and technology.', 'https://media.istockphoto.com/id/875644402/photo/back-of-two-women-wearing-hanbok-walking-through-the-traditional-style-houses-of-bukchon-hanok.jpg?s=2048x2048&w=is&k=20&c=TX9b_c-Ca1g9cJAQ24QGYUPiBxCm0U9xEaT18P3dBCc='),
+                                                            ('Sydney', 'Famous for its Opera House and harbor.', 'https://media.istockphoto.com/id/504539120/photo/sydney-waterfront-at-night.jpg?s=2048x2048&w=is&k=20&c=S3bne0zLMVKmZdbuWal4YhbJ3CArbAA1mo_Gp8YWFf4='),
+                                                            ('Rome', 'The Eternal City with ancient wonders.', 'https://media.istockphoto.com/id/539115110/photo/colosseum-in-rome-and-morning-sun-italy.jpg?s=2048x2048&w=is&k=20&c=98qMLmYY4cYbb0jGZcyFntjUJpN8UfixLcisXpU7bDk='),
+                                                            ('Bangkok', 'A vibrant city known for its street life.', 'https://media.istockphoto.com/id/507913346/photo/wat-arun-temple-at-sunset-in-bangkok-thailand.jpg?s=2048x2048&w=is&k=20&c=7kTLiNwiw88bvl91VhQdu3z0l_0onjJJbC5Vjbp8Zek='),
+                                                            ('Dubai', 'A luxurious city with iconic architecture.', 'https://media.istockphoto.com/id/467829216/photo/dubai-marina.jpg?s=2048x2048&w=is&k=20&c=4m3_1e7uebRXCVnHCilSoU1jN-re1nXspSKpN6yCCr4='),
+                                                            ('Paris', 'A city with breathtaking landscapes.', 'https://media.istockphoto.com/id/1185953092/photo/the-main-attraction-of-paris-and-all-of-europe-is-the-eiffel-tower-in-the-rays-of-the-setting.jpg?s=2048x2048&w=is&k=20&c=IfD0giUk7Zy7DVMsTblk-MSA3rp9o980Ga_Y9X4IsrM='),
+                                                            ('Finland', 'Famous for its carnival and beaches.', 'https://media.istockphoto.com/id/1443298317/photo/white-reindeer-in-the-snow.jpg?s=2048x2048&w=is&k=20&c=115eu3vaktwm7Etsn_tT2rX2B5g9DlijAZSzuLvYFIs=')
+;
+
+-- Product
+CREATE TABLE product
+(
+    product_id         INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    product_name       VARCHAR(128) NOT NULL,
+    category           VARCHAR(32)  NOT NULL,
+    image_url          VARCHAR(256) NOT NULL,
+    price              INT          NOT NULL,
+    stock              INT          NOT NULL,
+    description        VARCHAR(1024),
+    created_date       TIMESTAMP    NOT NULL,
+    last_modified_date TIMESTAMP    NOT NULL
+);
+
+-- User
+CREATE TABLE `user`
+(
+    user_id            INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    email              VARCHAR(256) NOT NULL UNIQUE KEY,
+    password           VARCHAR(256) NOT NULL,
+    created_date       TIMESTAMP    NOT NULL,
+    last_modified_date TIMESTAMP    NOT NULL
+);
+
+ALTER TABLE `user` ADD `name` VARCHAR(100);
+
+-- Order
+CREATE TABLE `order`
+(
+    order_id           INT       NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id            INT       NOT NULL,
+    total_amount       INT       NOT NULL, -- 訂單總花費
+    created_date       TIMESTAMP NOT NULL,
+    last_modified_date TIMESTAMP NOT NULL
+);
+
+CREATE TABLE order_item
+(
+    order_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    order_id      INT NOT NULL,
+    product_id    INT NOT NULL,
+    quantity      INT NOT NULL, -- 商品數量
+    amount        INT NOT NULL  -- 商品花費
+);
+
+-- Cart
+CREATE TABLE cart (
+    cart_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL, -- 關聯用戶
+    product_id INT NOT NULL, -- 關聯商品
+    quantity INT DEFAULT 1, -- 商品數量
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES `user`(user_id),
+    FOREIGN KEY (product_id) REFERENCES product(product_id)
+);

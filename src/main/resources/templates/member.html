@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員專區</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .profile-header img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+    }
+    .profile-header .info {
+      flex: 1;
+    }
+    .profile-header .info h2 {
+      margin: 0;
+      font-size: 1.5em;
+      color: #333;
+    }
+    .profile-header .info p {
+      margin: 5px 0;
+      color: #777;
+    }
+    .profile-header .info a {
+      text-decoration: none;
+      color: #007bff;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.2em;
+      color: #333;
+    }
+    .section .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .section .item:last-child {
+      border-bottom: none;
+    }
+    .section .item span {
+      color: #555;
+    }
+    .section .item a {
+      text-decoration: none;
+      color: #007bff;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background-color: #ff5722;
+      color: #fff;
+      border-radius: 12px;
+      font-size: 0.8em;
+      margin-left: 5px;
+    }
+    .avatar-upload-section {
+      margin-top: 20px;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- 會員資料 -->
+  <div class="profile-header">
+    <img id="avatarImg" src="https://assets.jamcity.com/20210419054719/featured-SP_1024x1024_Evergreen_AppIcon-1.png.webp" alt="會員頭像">
+    <div class="info">
+      <h2 id="username">Hsu ********</h2>
+    </div>
+  </div>
+
+  <!-- 上傳頭像表單 -->
+  <div class="avatar-upload-section">
+    <h3>上傳新頭像</h3>
+    <form id="avatarUploadForm" enctype="multipart/form-data">
+      <label for="avatarFile">選擇圖片: </label>
+      <input type="file" id="avatarFile" name="avatarFile" accept="image/*" required />
+      <button type="submit">上傳</button>
+    </form>
+    <div id="uploadResult" style="color: red; margin-top: 10px;"></div>
+  </div>
+
+  <!-- 訂單管理 -->
+  <div class="section">
+    <h3>訂單管理</h3>
+    <div class="item">
+      <span>我的收藏</span>
+      <a href="/favorites">查看</a>
+    </div>
+    <div class="item">
+      <span>我的評價</span>
+      <a href="/reviews">查看</a>
+    </div>
+    <div class="item">
+      <span>管理付款方式</span>
+      <a href="/payment-methods">查看</a>
+    </div>
+  </div>
+
+  <!-- 帳號設定 -->
+  <div class="section">
+    <h3>帳號設定</h3>
+    <div class="item">
+      <span>管理登入方式</span>
+      <a href="/login-settings">查看</a>
+    </div>
+    <div class="item">
+      <span>管理個人資料</span>
+      <a href="/account-settings">查看</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 1) 取得 userId (假設後端 session 裡就有 user 資訊)
+  let currentUserId = null;
+
+  async function getUserProfile() {
+    try {
+      const resp = await fetch('/session/status');
+      if (resp.ok) {
+        const user = await resp.json();
+        currentUserId = user.userId;
+        // 更新畫面頭像
+        if (user.avatar) {
+          document.getElementById('avatarImg').src = user.avatar;
+        }
+        // 更新 username
+        document.getElementById('username').textContent = user.name || user.email;
+      }
+    } catch (err) {
+      console.error('取得使用者資訊失敗', err);
+    }
+  }
+
+  // 2) 上傳頭像
+  const form = document.getElementById('avatarUploadForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUserId) {
+      alert('尚未登入');
+      return;
+    }
+
+    // 使用 FormData 包裝檔案
+    const formData = new FormData();
+    const fileInput = document.getElementById('avatarFile');
+    formData.append('avatarFile', fileInput.files[0]);
+
+    try {
+      const resp = await fetch(`/users/${currentUserId}/avatar`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const resultText = await resp.text(); // 回傳字串
+      if (resp.ok) {
+        document.getElementById('uploadResult').style.color = 'green';
+        document.getElementById('uploadResult').textContent = '上傳成功！重新載入頭像...';
+        // 重新載入使用者資訊
+        await getUserProfile();
+      } else {
+        document.getElementById('uploadResult').style.color = 'red';
+        document.getElementById('uploadResult').textContent = '上傳失敗：' + resultText;
+      }
+    } catch (err) {
+      console.error('上傳頭像發生錯誤：', err);
+      document.getElementById('uploadResult').style.color = 'red';
+      document.getElementById('uploadResult').textContent = '上傳時發生錯誤：' + err.message;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', getUserProfile);
+</script>
+</body>
+</html>

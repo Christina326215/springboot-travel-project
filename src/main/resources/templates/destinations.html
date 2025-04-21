@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>探索旅遊攻略</title>
+  <style>
+    html, body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #ffe4e1;
+      height: 100%;
+    }
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    nav {
+      background-color: #ffffff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    main {
+      flex: 1;
+    }
+    nav .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+    nav .nav-links a {
+      text-decoration: none;
+      color: slateblue;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      background: #fff0f5;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .destination {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      text-align: center;
+    }
+    .destination img {
+      width: 100%;
+      height: auto;
+    }
+    .destination h2 {
+      margin: 10px 0;
+      font-size: 1.2em;
+      color: dimgray;
+    }
+    .destination p {
+      font-size: 0.9em;
+      color: black;
+      margin: 0 0 10px;
+    }
+    .more-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .more-link a {
+      text-decoration: none;
+      color: #fff;
+      background-color: lightblue;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+    footer {
+      text-align: center;
+      padding: 10px 0;
+      background: black;
+      color: #fff;
+      margin-top: auto;
+    }
+    .auth-links {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .auth-links .cart-icon i {
+      font-size: 1.5rem;
+      color: black;
+    }
+    .profile-icon {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      border: 1px solid black;
+      cursor: pointer;
+    }
+
+    #navbar-right {
+      text-align: center;
+      margin-top: 7px;
+    }
+    #navbar-right a {
+      text-decoration: none;
+      color: #fff;
+      background-color: lightblue;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+
+    .content-layout {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .grid {
+      flex: 3;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .login-button {
+      text-align: center;
+      margin-top: 5px;
+    }
+    .login-button a {
+      text-decoration: none;
+      color: #fff;
+      background-color: mediumpurple;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+
+    #weather-info {
+      flex: 1;
+      margin-left: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #weather-info h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    #weather-display {
+      font-size: 0.9em;
+      color: #333;
+    }
+
+    @media (max-width: 768px) {
+      .content-layout {
+        flex-direction: column;
+      }
+
+      #weather-info {
+        margin-left: 0;
+        margin-top: 20px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+<div class="page-container">
+  <nav class="navbar navbar-light bg-light">
+    <div>Traveller</div>
+    <div class="auth-links">
+      <!-- 已登入 -->
+      <div th:if="${user != null}">
+        <a href="/member">
+          <img th:src="${user.avatar}" th:alt="${user.name}" class="profile-icon" />
+        </a>
+      </div>
+
+      <!-- 未登入 -->
+      <div th:if="${user == null}" class="login-button">
+        <a href="/auth/login" id="login-link">登入</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <h1 style="color: black;">旅遊文章</h1>
+      <div class="content-layout">
+        <div class="grid">
+          <div th:each="destination : ${destinations}" class="destination">
+            <img th:src="${destination.imageUrl}" th:alt="${destination.name}">
+            <h2 th:text="${destination.name}"></h2>
+            <p th:text="${destination.description}"></p>
+          </div>
+        </div>
+        <!-- 天氣資訊 -->
+        <div id="weather-info" class="weather-container">
+          <h3>目前天氣</h3>
+          <div id="weather-display"></div>
+        </div>
+      </div>
+      <div class="more-link">
+        <a href="/more-destinations">更多文章</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 MyTravel. All Rights Reserved.
+  </footer>
+</div>
+
+<script>
+
+  // 檢查使用者是否已登入
+  async function checkLoginStatus() {
+    try {
+      const response = await fetch('/session/status', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        console.log('用戶已登入:', user);
+
+        // 更新 NavBar：顯示大頭貼
+        const navBar = document.getElementById('navbar-right');
+        navBar.innerHTML = `
+          <a href="/member">
+            <img src="${user.avatar}" alt="${user.name}" class="avatar" style="width: 35px; height: 35px; border-radius: 50%; cursor:pointer;"
+              onclick="location.href='/member'"/>
+          </a>
+        `;
+      } else {
+        document.getElementById('navbar-right').innerHTML = `
+        <div class="login-button">
+            <a href="/auth/login" id="login-link">登入</a>
+        </div>
+      `;
+      }
+    } catch (error) {
+      console.error('檢查登入狀態時出錯:', error);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', checkLoginStatus);
+
+  // Weather api
+  async function fetchWeather(location) {
+    try {
+      const response = await fetch(`/weather?location=${location}`);
+      if (!response.ok) {
+        throw new Error('無法獲取天氣資訊');
+      }
+      const data = await response.json();
+      displayWeather(data);
+    } catch (error) {
+      console.error(error);
+      document.getElementById('weather-display').innerHTML = '<span>無法顯示天氣資訊</span>';
+    }
+  }
+
+  function displayWeather(data) {
+    const weatherEl = document.getElementById('weather-display');
+    weatherEl.innerHTML = `
+            <p>地點：${data.name}</p>
+            <p>溫度：${data.main.temp}°C</p>
+            <p>天氣：${data.weather[0].description}</p>
+            <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="Weather Icon">
+        `;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchWeather('Taipei');
+  });
+
+  // 使用地理定位 API
+  navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            fetchWeatherByCoords(lat, lon);
+          },
+          (error) => {
+            console.error("定位失敗，使用默認地點:", error);
+            fetchWeather('Taipei');
+          }
+  );
+
+  async function fetchWeatherByCoords(lat, lon) {
+    try {
+      const response = await fetch(`/weather?lat=${lat}&lon=${lon}`);
+      const data = await response.json();
+      displayWeather(data);
+    } catch (error) {
+      console.error(error);
+      document.getElementById('weather-display').innerHTML = '<span>無法顯示天氣資訊</span>';
+    }
+  }
+
+</script>
+</body>
+</html>
