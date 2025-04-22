@@ -16,12 +16,12 @@ public class DestinationsServiceImpl implements DestinationsService {
     private DestinationsDao destinationsDao;
 
     @Override
-    public List<Destination> fetchDestinations(int page, int size) {
-        return destinationsDao.fetchDestinations(page, size);
+    public List<Destination> getDestinations(DestinationsQueryParams destinationsQueryParams) {
+        return destinationsDao.getDestinations(destinationsQueryParams);
     }
 
     @Override
-    public Integer countTotalDestinations() {
-        return destinationsDao.countTotalDestinations();
+    public Integer countDestinations(DestinationsQueryParams destinationsQueryParams) {
+        return destinationsDao.countDestinations(destinationsQueryParams);
     }
 }

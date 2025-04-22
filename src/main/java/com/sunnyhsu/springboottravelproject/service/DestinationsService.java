@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DestinationsService {
 
-    List<Destination> fetchDestinations(int page, int size);
+    List<Destination> getDestinations(DestinationsQueryParams destinationsQueryParams);
 
-    Integer countTotalDestinations();
+    Integer countDestinations(DestinationsQueryParams destinationsQueryParams);
 }

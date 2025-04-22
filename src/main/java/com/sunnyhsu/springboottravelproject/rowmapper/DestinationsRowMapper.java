@@ -12,7 +12,13 @@ public class DestinationsRowMapper implements RowMapper<Destination> {
 
     @Override
     public Destination mapRow(ResultSet resultSet, int i) throws SQLException {
-        Destination destination = new Destination(resultSet.getString("name"),resultSet.getString("description"),resultSet.getString("image_url"));
+        Destination destination = new Destination(
+                resultSet.getString("name"),
+                resultSet.getString("description"),
+                resultSet.getString("image_url"),
+                resultSet.getTimestamp("created_date").toLocalDateTime().toLocalDate(),
+                resultSet.getTimestamp("last_modified_date").toLocalDateTime().toLocalDate()
+        );
 //        destination.setName(resultSet.getString("name"));
 //        destination.setDescription(resultSet.getString("description"));
 //        destination.setImageUrl(resultSet.getString("imageUrl"));

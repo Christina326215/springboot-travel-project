@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 @CrossOrigin
 @RestController
@@ -42,18 +43,29 @@ public class LineOAuthController {
 
     @GetMapping("/buildAuthUrl")
     public String buildAuthUrl(HttpSession session) {
+        String state = UUID.randomUUID().toString().replace("-", "");
+        session.setAttribute("line_oauth_state", state);
+
         return UriComponentsBuilder.fromHttpUrl(LINE_AUTH_URL)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", lineClientId)
                 .queryParam("scope", "profile openid email")
                 .queryParam("redirect_uri", lineRedirectUri)
+                .queryParam("state", state)
+                .queryParam("response_mode", "query")
                 .toUriString();
     }
 
-    @GetMapping("/callback")
-    public ResponseEntity<Void> callback(@RequestParam String code,
+    @RequestMapping(value = "/callback", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<Void> callback(@RequestParam(required = false) String code,
+                                         @RequestParam(required = false) String state,
                                          HttpSession session)
     {
+        String sessionState = (String) session.getAttribute("line_oauth_state");
+        if (sessionState == null || !sessionState.equals(state)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         // 交換 token
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

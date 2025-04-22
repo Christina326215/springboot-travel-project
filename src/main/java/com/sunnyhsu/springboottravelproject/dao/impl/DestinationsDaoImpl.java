@@ -19,26 +19,44 @@ public class DestinationsDaoImpl implements DestinationsDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public List<Destination> fetchDestinations(int page, int size) {
+    public List<Destination> getDestinations(DestinationsQueryParams destinationsQueryParams) {
 
-        String sql = "SELECT name, description, image_url " +
+        String sql = "SELECT id, name, description, image_url, created_date, last_modified_date " +
                 "FROM destinations " +
-                "LIMIT 6";
+                "WHERE 1=1";
 
         Map<String, Object> map = new HashMap<>();
 
-        List<Destination> destinationsList = namedParameterJdbcTemplate.query(sql, map, new DestinationsRowMapper());
+        // 查詢條件
+        if (destinationsQueryParams.getSearch() != null){
+            sql = sql + " AND name LIKE :search";
+            map.put("search", "%" + destinationsQueryParams.getSearch() + "%");
+        }
 
-        System.out.println(destinationsList);
+        // 排序
+        sql = sql + " ORDER BY " + destinationsQueryParams.getOrderBy() + " " + destinationsQueryParams.getSort();
+
+        // 分頁
+        sql = sql + " LIMIT :limit OFFSET :offset";
+        map.put("limit", destinationsQueryParams.getLimit());
+        map.put("offset", destinationsQueryParams.getOffset());
+
+        List<Destination> destinationsList = namedParameterJdbcTemplate.query(sql, map, new DestinationsRowMapper());
 
         return destinationsList;
     }
 
     @Override
-    public Integer countTotalDestinations() {
-        String sql = "SELECT COUNT(*) FROM destinations";
+    public Integer countDestinations(DestinationsQueryParams destinationsQueryParams) {
+        String sql = "SELECT COUNT(*) FROM destinations WHERE 1=1";
 
         Map<String, Object> map = new HashMap<>();
+
+        // 查詢條件
+        if (destinationsQueryParams.getSearch() != null){
+            sql = sql + " AND name LIKE :search";
+            map.put("search", "%" + destinationsQueryParams.getSearch() + "%");
+        }
 
         Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
 
