@@ -1,54 +1,54 @@
-Spring Boot Travel Project
+### Spring Boot Travel Project
 
-💡 Project Description
+#### 💡 Project Description
 
-A travel platform project developed with Spring Boot, providing features such as member registration/login (including OAuth2 social login), travel destination listings, and weather data api queries.
+##### A travel platform project developed with Spring Boot, providing features such as member registration/login (including OAuth2 social login), travel destination listings, and weather data api queries.
 
-🛠️ Tech Stack
+#### 🛠️ Tech Stack
 
-Java 17
+##### Java 17
 
-Spring Boot 3
+##### Spring Boot 3
 
-Spring Security
+##### Spring Security
 
-MySQL / JDBC
+##### MySQL / JDBC
 
-Thymeleaf
+##### Thymeleaf
 
-OAuth2 (Google, Facebook, Line)
+##### OAuth2 (Google, Facebook, Line)
 
-RestTemplate API Integration
+##### RestTemplate API Integration
 
-Session / Token / JWT
+##### Session / Token / JWT
 
-Docker, Docker Compose
+##### Docker, Docker Compose
 
-🔄 Features
+#### 🔄 Features
 
-Member system with password encryption (BCrypt)
+##### Member system with password encryption (BCrypt)
 
-OAuth2 Social login (Google, Facebook, Line)
+##### OAuth2 Social login (Google, Facebook, Line)
 
-Travel destinations listing with pagination and filtering
+##### Travel destinations listing with pagination and filtering
 
-Display weather information based on current location
+##### Display weather information based on current location
 
-Session management
+##### Session management
 
-Dockerized deployment
+##### Dockerized deployment
 
-🔹 How to Run
+#### 🔹 How to Run
 
-# Clone repository
-git clone https://github.com/Christina326215/springboot-travel-project.git
+##### Clone repository
+###### git clone https://github.com/Christina326215/springboot-travel-project.git
 
-# Build and Run with Docker Compose
-docker-compose up --build
+##### Build and Run with Docker Compose
+###### docker-compose up --build
 
-# Visit
-http://localhost:8080
+##### Visit
+###### http://localhost:8080
 
-🔹 API Documentation
+#### 🔹 API Documentation
 
-Postman
+##### Postman
