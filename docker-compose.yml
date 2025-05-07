@@ -1,0 +1,53 @@
+services:
+  travel-mysql:
+    image: mysql:8.0
+    container_name: travel-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - travel-net
+
+  travel-app:
+    image: springboot-travel-project-app
+    container_name: travel-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - travel-mysql
+    ports:
+      - "8080:8080"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      OAUTH2_FACEBOOK_CLIENT_ID: ${OAUTH2_FACEBOOK_CLIENT_ID}
+      OAUTH2_FACEBOOK_CLIENT_SECRET: ${OAUTH2_FACEBOOK_CLIENT_SECRET}
+      OAUTH2_FACEBOOK_REDIRECT_URI: http://localhost:8080/auth/facebook/callback
+      OAUTH2_GOOGLE_CLIENT_ID: ${OAUTH2_GOOGLE_CLIENT_ID}
+      OAUTH2_GOOGLE_CLIENT_SECRET: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+      OAUTH2_GOOGLE_REDIRECT_URI: http://localhost:8080/auth/google/callback
+      OAUTH2_LINE_CLIENT_ID: ${OAUTH2_LINE_CLIENT_ID}
+      OAUTH2_LINE_CLIENT_SECRET: ${OAUTH2_LINE_CLIENT_SECRET}
+      OAUTH2_LINE_REDIRECT_URI: http://localhost:8080/auth/line/callback
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/${MYSQL_DATABASE}?serverTimezone=Asia/Taipei&characterEncoding=utf-8
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      WEATHER_API_URL: https://api:openweathermap:org/data/2:5/weather
+    networks:
+      - travel-net
+
+volumes:
+  mysql-data:
+
+networks:
+  travel-net:
